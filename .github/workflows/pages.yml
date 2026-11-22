@@ -52,15 +52,15 @@ jobs:
               for asset in release["assets"]
           )
           if not assets:
-              assets = "<li>No downloadable assets are attached to this release.</li>"
+              assets = "<li>此版本没有可下载的附件。</li>"
 
           page = f'''<!doctype html>
-          <html lang="en">
+          <html lang="zh-CN">
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <meta name="color-scheme" content="light">
-            <title>A Book Firmware</title>
+            <title>A Book 固件</title>
             <style>
               :root {{ font: 16px/1.55 system-ui, sans-serif; color: #17242b; background: #f4f7f6; }}
               body {{ margin: 0; }}
@@ -80,14 +80,14 @@ jobs:
             </style>
           </head>
           <body>
-            <header><div><h1>A Book Firmware</h1><div class="version">Latest release: {html.escape(release["tag_name"])}</div></div></header>
+            <header><div><h1>A Book 固件</h1><div class="version">最新版本：{html.escape(release["tag_name"])}</div></div></header>
             <main>
-              <p>Firmware packages for the read-pico-4.7 board. Check the release notes and SHA-256 manifest before installation.</p>
-              <h2>Release assets</h2>
+              <p>适用于小纸 Pico read-pico-4.7。安装前请查看版本说明并核对 SHA-256 清单。</p>
+              <h2>下载文件</h2>
               <ul>{assets}</ul>
               <nav class="links">
-                <a href="{html.escape(release["html_url"], quote=True)}">Release notes</a>
-                <a href="https://446599.github.io/a-book/">Open A Book reader page</a>
+                <a href="{html.escape(release["html_url"], quote=True)}">版本说明</a>
+                <a href="https://446599.github.io/a-book/">打开 A Book 刷机页</a>
               </nav>
             </main>
           </body>

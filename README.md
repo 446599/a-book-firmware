@@ -1,17 +1,17 @@
-# A Book Firmware Releases
+# A Book 固件发布
 
-Public distribution point for A Book firmware packages for the read-pico-4.7 board.
+小纸 Pico `read-pico-4.7` 的公开固件下载与发布页面。
 
-This repository does not contain firmware source code. Versioned binary packages, their manifest, license notices, and SHA-256 checksums are attached to GitHub Releases. GitHub's automatically generated tag archives contain only repository documentation and deployment configuration.
+本仓库不包含固件源码。版本化固件包、清单、第三方许可和 SHA-256 校验文件均作为 GitHub Release 附件发布。GitHub 自动生成的标签源码压缩包只含仓库说明和 Pages 部署配置。
 
-## Downloads
+## 下载与安装
 
-- [Firmware releases](https://github.com/446599/a-book-firmware/releases)
-- [Firmware download page](https://446599.github.io/a-book-firmware/)
-- [A Book reader page](https://446599.github.io/a-book/)
+- [固件版本列表](https://github.com/446599/a-book-firmware/releases)
+- [固件下载页](https://446599.github.io/a-book-firmware/)
+- [A Book 刷机页](https://446599.github.io/a-book/)
 
-Each release includes a complete ZIP package and the individual images referenced by `manifest.json`. Verify `SHA256SUMS.txt` before installation. Use the A Book reader page for the supported device installation flow.
+每个 Release 附有完整 ZIP 固件包、`manifest.json` 和 `SHA256SUMS.txt`。安装前先核对 SHA-256，并通过 A Book 刷机页执行受支持的设备安装流程。
 
-## Compatibility
+## 兼容性
 
-Release assets identify their board, version, image roles, flash offsets, and SHA-256 digests in `manifest.json`. Do not mix images from different releases.
+`manifest.json` 记录适用板型、版本、镜像用途、Flash 偏移和 SHA-256 摘要。请勿混用不同版本的镜像。
