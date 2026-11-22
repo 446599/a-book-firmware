@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag to publish, for example v0.8.1
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -33,12 +38,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RELEASE_TAG_INPUT: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
           if [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
             release_tag="$(jq -r '.release.tag_name' "$GITHUB_EVENT_PATH")"
           else
-            release_tag="$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)"
+            release_tag="$RELEASE_TAG_INPUT"
           fi
 
           release_dir="$RUNNER_TEMP/release"
