@@ -1,0 +1,103 @@
+name: Publish firmware download page
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/configure-pages@v5
+      - name: Generate release index
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import html
+          import json
+          import os
+          from pathlib import Path
+          import urllib.request
+
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['GH_REPO']}/releases/latest",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              release = json.load(response)
+
+          assets = "\n".join(
+              f'<li><a href="{html.escape(asset["browser_download_url"], quote=True)}">'
+              f'{html.escape(asset["name"])}</a><span>{asset["size"]:,} bytes</span></li>'
+              for asset in release["assets"]
+          )
+          if not assets:
+              assets = "<li>No downloadable assets are attached to this release.</li>"
+
+          page = f'''<!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="color-scheme" content="light">
+            <title>A Book Firmware</title>
+            <style>
+              :root {{ font: 16px/1.55 system-ui, sans-serif; color: #17242b; background: #f4f7f6; }}
+              body {{ margin: 0; }}
+              header {{ background: #fff; border-bottom: 1px solid #d6e0dc; }}
+              main, header > div {{ width: min(860px, calc(100% - 40px)); margin: auto; }}
+              header > div {{ padding: 28px 0 22px; }}
+              h1 {{ margin: 0; font-size: 28px; }}
+              main {{ padding: 28px 0 48px; }}
+              h2 {{ margin: 30px 0 10px; font-size: 18px; }}
+              .version {{ color: #47625d; margin-top: 4px; }}
+              ul {{ list-style: none; padding: 0; margin: 0; border-top: 1px solid #d6e0dc; }}
+              li {{ display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #d6e0dc; }}
+              a {{ color: #075f59; overflow-wrap: anywhere; }}
+              li span {{ color: #52645f; white-space: nowrap; font-size: 14px; }}
+              .links {{ display: flex; flex-wrap: wrap; gap: 18px; margin-top: 24px; }}
+              @media (max-width: 520px) {{ li {{ display: grid; gap: 2px; }} }}
+            </style>
+          </head>
+          <body>
+            <header><div><h1>A Book Firmware</h1><div class="version">Latest release: {html.escape(release["tag_name"])}</div></div></header>
+            <main>
+              <p>Firmware packages for the read-pico-4.7 board. Check the release notes and SHA-256 manifest before installation.</p>
+              <h2>Release assets</h2>
+              <ul>{assets}</ul>
+              <nav class="links">
+                <a href="{html.escape(release["html_url"], quote=True)}">Release notes</a>
+                <a href="https://446599.github.io/a-book/">Open A Book reader page</a>
+              </nav>
+            </main>
+          </body>
+          </html>'''
+          output = Path("dist")
+          output.mkdir(exist_ok=True)
+          (output / "index.html").write_text(page, encoding="utf-8")
+          PY
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
